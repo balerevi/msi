@@ -1,77 +1,97 @@
 import React from 'react';
+import './App.css';
 
-class App extends React.Component {
+class TodoList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      tasks: [],
-      neuerTask: ''
-    }
+      newTask: '',
+      tasks:[
+        {
+          'id':1,
+          'title':'Task 1',
+          'completed': true
+        },
+        {
+          'id':2,
+          'title':'Task 2',
+          'completed': true
+        },
+        {
+          'id':3,
+          'title':'Task 3',
+          'completed': false
+        }
+      ]
+    };
+    this.taskId = this.getTail(this.state.tasks).id;
   }
-
-  updateInput(key, value) {
-    this.setState({
-      [key]: value
-    })
-
-  }
-
-  addNeuerTask() {
-    const tasks = [...this.state.tasks];
-    const neuerTask = {
-      id: tasks.length + 1 + Math.random(),
-      title: this.state.neuerTask.slice(),
-      erledigt: false
-    }
-    tasks.push(neuerTask);
-
-    this.setState({
-      tasks,
-      neuerTask: ''
-    })
-  }
-
-  deleteItem(id) {
-    const tasks = [...this.state.tasks];
-
-    const updateTasks = tasks.filter(item => item.id !== id)
-
-    this.setState({ tasks: updateTasks })
-  }
-
   render() {
     return (
-      <div className="App">
-        <input
-          type="text"
-          placeholder="Neuer Task"
-          value={this.state.neuerTask}
-          onChange={e => this.updateInput("neuerTask", e.target.value)}
-        />
-        <button onClick={() => this.addNeuerTask()} >
-          hinzufügen
-        </button>
-
-        <br />
-
-        <ul>
-          {this.state.tasks.map(item => {
-            return (
-              <li key={item.id}>
-                <input type="checkbox" value={item.erledigt} />
-                {item.title}
-                <button
-                  onClick={() => this.deleteItem(item.id)}>
-                  &times;
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-
-      </div >
+        <div className="todo">
+          <input type="text" placeholder="New Task" value={this.state.newTask}
+                 onChange={e => this.setState({ "newTask": e.target.value})}/>
+          <button onClick={() => this.addTask()}>Add</button>
+          <ul>
+            {this.state.tasks.map((task, index) => {
+              return (
+                  <p>
+                    <input type="checkbox" checked={task.completed} onClick={() => this.toggleTaskStatus(index)} />
+                    {task.title}
+                    <span className="red" onClick={() => this.removeTask(index)}> X</span>
+                  </p>
+              )
+            })}
+          </ul>
+        </div>
     );
   }
+  addTask(){
+    this.taskId += 1;
+    let updatedList = this.state.tasks;
+    let newTask = {
+      id:this.taskId,
+      title:this.state.newTask,
+      completed: false
+    };
+
+    if (newTask.title.trim().length === 0){
+      newTask.title = 'Task ' + this.taskId;
+    }
+
+    updatedList.push(newTask);
+    this.setState({ "newTask": '', "tasks": updatedList});
+  }
+  removeTask(index){
+    let updatedList = this.state.tasks;
+    updatedList.splice(index,1);
+    this.setState({ "tasks": updatedList});
+  }
+  toggleTaskStatus(index){
+    let updatedList = this.state.tasks;
+    updatedList[index].completed = !updatedList[index].completed;
+    this.setState({ "tasks": updatedList});
+  }
+  getLastIndex(array){
+    return array.length-1;
+  }
+  getTail(array){
+    const index = this.getLastIndex(array);
+    if(index === -1){
+      return -1;
+    } else{
+      return array[index];
+    }
+  }
+}
+
+function App() {
+  return (
+      <div className="App">
+        <h3>ToDo List</h3>
+        <TodoList />
+      </div>
+  );
 }
 
 export default App;
